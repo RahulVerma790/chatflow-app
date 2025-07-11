@@ -30,6 +30,6 @@ setupWebSocketServer(server, userManager);
 const PORT = config.PORT || 3000;
 
 server.listen(PORT, function() {
-    console.log((new Date()) + 'Combined HTTP + WebSocket server running on port 3000.');
+    console.log((new Date()) + `Combined HTTP + WebSocket server running on PORT ${config.PORT}.`);
 });
   
