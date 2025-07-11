@@ -1,5 +1,6 @@
 import { connection } from "websocket";
-import { OutgoingMessages } from "./messages/outgoingMessages";
+import { OutgoingMessages, SupportedMessage as OutgoingSupportedMessage} from "./messages/outgoingMessages";
+import { IncomingMessages } from "./messages/incomingMessages";
 
 interface ConnectedUser {
     userId: string;
@@ -16,6 +17,40 @@ export class UserManager {
 
     constructor(){
         this.rooms = new Map<string, Room>();
+    }
+
+    attachEvents(conn: connection, handler: (conn: connection, msg: IncomingMessages) => void){
+        conn.on('message', function(message) {
+            // Todo add rate limiting logic
+            if (message.type === 'utf8') {
+                const data = message.utf8Data;
+                if(!data){
+                    return;
+                }
+
+                let parsed;
+
+                try {
+                    parsed = JSON.parse(data) as IncomingMessages;
+                }catch{
+                    conn.sendUTF(JSON.stringify({
+                        type: OutgoingSupportedMessage.RoomError,
+                        payload: {message: "Malformed JSON"}
+                    }));
+                    return;
+                }
+                handler(conn, parsed);
+            }
+            if(message.type !== 'utf8'){
+                console.warn("Unsupported Message Type received: ", message.type);
+                return;
+            }
+        });
+
+        conn.on('close', (reasonCode, description) => {
+            this.removeConnection(conn);
+            console.log(`WebSocket connection closed. Reason: ${reasonCode}, ${description}`);
+        })
     }
 
     removeConnection(conn: connection){

@@ -1,5 +1,5 @@
-import { ChatMessage } from "../models/ChatMessages";
-import { Room } from "../models/RoomModel";
+import { ChatMessage } from "../features/chat/chat.model";
+import { Room } from "../features/room/room.model";
 import { Chat, Store} from "./Store";
 import {v4 as uuidv4} from "uuid";
 

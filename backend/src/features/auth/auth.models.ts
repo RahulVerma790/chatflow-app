@@ -6,6 +6,8 @@ export const UserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     role: {type: String, enum:["user", "admin"], default: "user"},
     rooms: {type: [String]}
+},{
+    timestamps: true
 })
 
 export const User = mongoose.model("Users", UserSchema);

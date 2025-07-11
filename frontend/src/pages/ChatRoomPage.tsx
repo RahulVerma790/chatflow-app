@@ -133,6 +133,37 @@ export const ChatRoomPage = () => {
             });
     },[incomingMessage, roomId]);
 
+    function handleSend(){
+        if(!roomId || !newMessage.trim()) return;
+
+        const token = localStorage.getItem("token");
+
+        if(!token) return;
+
+        const userId = localStorage.getItem("userId");
+        const userName = localStorage.getItem("userName");
+
+        sendMessage({
+            type: "SEND_MESSAGE",
+            payload: {
+                userId: userId,
+                userName: userName,
+                roomId: roomId,
+                message: newMessage.trim()
+            }
+        });
+
+        setNewMessage("");
+
+        requestAnimationFrame(() => {
+            const container = containerRef.current;
+
+            if(container){
+                container.scrollTop = container.scrollHeight;
+            }
+        });
+    }
+
     return <>
     <div className="flex h-screen">
         <div className="w-64">

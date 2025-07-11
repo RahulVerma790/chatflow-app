@@ -1,4 +1,4 @@
-import { JWT_PASS } from "../config"
+import { config } from "../config"
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 
@@ -17,7 +17,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
     const token = authHeader.split(" ")[1];
 
     try {
-        const decoded = jwt.verify(token, JWT_PASS);
+        const decoded = jwt.verify(token, config.jwtSecret);
         (req as any).user = decoded;
         next();
     } catch(err){
