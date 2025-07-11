@@ -1,54 +1,83 @@
-# React + TypeScript + Vite
+# 💬 ChatFlow
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**ChatFlow** is a real-time chat application built with:
 
-Currently, two official plugins are available:
+- ⚛️ **Frontend**: React + TypeScript + Tailwind CSS + Vite  
+- 🔌 **Backend**: Node.js + TypeScript + WebSocket
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+It supports features like:
+- Live chat with WebSockets  
+- Join/Create rooms  
+- Private room access requests  
+- Real-time message broadcasting  
+- Upvote-based message interaction
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📁 Project Structure
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```
+chatflow-app/
+├── frontend/ # React app
+├── backend/ # WebSocket server
+├── .gitignore
+├── README.md
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Getting Started
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### 🔧 Prerequisites
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+- [Node.js](https://nodejs.org/) (v18 or higher recommended)  
+- [npm](https://www.npmjs.com/) or [pnpm](https://pnpm.io/)
+
+### 🧩 Frontend Setup
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
+Open your browser at: http://localhost:5173
+
+### 🔌 Backend Setup
+
+```bash
+cd backend
+npm install
+npm run dev
+```
+WebSocket server runs on: ws://localhost:3000
+
+## 🛠️ Build for Production
+
+### Frontend
+
+```bash
+cd frontend
+npm run build
+```
+
+### Backend
+
+```bash
+cd backend
+npx tsc
+```
+
+## 🧪 Technologies Used
+
+| Part      | Tech                                          |
+|-----------|-----------------------------------------------|
+| Frontend  | React, TypeScript, Vite                       |
+| Styling   | Tailwind CSS                                  |
+| Backend   | Node.js, TypeScript, WebSocket (`ws` library) |
+| Tools     | ESLint, npm, Git                              |
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## 🤝 Contributing
+
+Pull requests are welcome! Please open an issue first to discuss major changes.
