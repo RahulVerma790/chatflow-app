@@ -16,6 +16,9 @@ dist/
 **/dist/
 dist-ssr/
 
+#Ignore restServer.ts
+backend/src.restServer.ts
+
 # Local env files
 *.local
 .env
