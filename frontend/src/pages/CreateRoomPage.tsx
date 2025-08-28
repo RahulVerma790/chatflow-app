@@ -34,7 +34,7 @@ export const CreateRoomPage = () => {
             navigate("/signin");
         }
 
-        axios.post("http://localhost:3000/api/v1/rooms",{
+        axios.post(`${import.meta.env.VITE_API_URL}/api/v1/rooms`,{
             roomName: roomName,
             isPrivate: privateRoom
         }, {

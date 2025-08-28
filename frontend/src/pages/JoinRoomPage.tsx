@@ -42,7 +42,7 @@ export const JoinRoomPage = () => {
             navigate("/signin");
         }
 
-        axios.get("http://localhost:3000/api/v1/rooms/search", {
+        axios.get(`${import.meta.env.VITE_API_URL}/api/v1/rooms/search`, {
             params: {
                 roomId: roomId || undefined,
                 roomName: roomName || undefined

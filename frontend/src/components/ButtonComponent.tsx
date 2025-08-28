@@ -16,7 +16,8 @@ export const ButtonComponent = (props: ButtonProps) => {
     return <button 
     type={"submit"}
     onClick={props.onClick}
-    className={`${props.variant === "active" ? "bg-red-600 hover:bg-red-600" : "bg-blue-500"} hover:bg-blue-600 text-white 
+    className={`${props.variant === "active" ? "bg-red-600 hover:bg-red-600" : props.variant === "upvote" ? "bg-gray-900" : "bg-blue-500"} 
+    hover:bg-blue-600 text-white 
         ${props.size === "sm" ? smSize : props.size === "lg" ? lgSize : props.size === "onlyIcon" ? "pl-2 py-1 rounded" 
             : props.size === "upVote" ? upvoteSize : defaultSize } 
     font-semibold cursor-pointer flex justify-center items-center`}>

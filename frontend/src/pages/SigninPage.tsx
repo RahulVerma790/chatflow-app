@@ -16,7 +16,7 @@ export const SigninPage = () => {
             return;
         }
 
-        axios.post("http://localhost:3000/api/v1/signin", {
+        axios.post(`${import.meta.env.VITE_API_URL}/api/v1/signin`, {
             email: email,
             password: password,
         }).then((res) => {
@@ -37,7 +37,7 @@ export const SigninPage = () => {
 
         if(!token) return;
 
-        axios.get("http://localhost:3000/api/v1/dashboard", {
+        axios.get(`${import.meta.env.VITE_API_URL}/api/v1/dashboard`, {
             headers: {
                 authorization: token
             }

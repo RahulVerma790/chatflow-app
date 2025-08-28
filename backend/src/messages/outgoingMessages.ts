@@ -13,6 +13,7 @@ type MessagePayload = {
     message: string,
     userName: string,
     upvotes: string[],
+    createdAt: Date,
 }
 
 export  type OutgoingMessages = {

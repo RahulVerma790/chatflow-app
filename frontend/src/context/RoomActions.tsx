@@ -23,7 +23,7 @@ export const RoomActionsProvider: React.FC<{children: React.ReactNode}> = ({chil
             return;
         }
 
-        axios.post(`http://localhost:3000/api/v1/rooms/${roomId}/join`,{},{
+        axios.post(`${import.meta.env.VITE_API_URL}/api/v1/rooms/${roomId}/join`,{},{
             headers: {
                 authorization: token
             }

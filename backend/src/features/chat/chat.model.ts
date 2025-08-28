@@ -7,6 +7,8 @@ const chatSchema = new mongoose.Schema({
     message:{type: String, required: true},
     userName: {type: String, required: true},
     upvotes: {type: [String], default: [] }
+}, {
+    timestamps: true,
 })
 
 export const ChatMessage = mongoose.model("ChatMessage", chatSchema);

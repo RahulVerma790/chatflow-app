@@ -16,7 +16,6 @@ export const createMessageHandler = (
 
         case IncomingSupportedMessage.JoinRoom: {
             const result = InitMessage.safeParse(IncomingMessage.payload);
-            console.log("Check 1");
 
             if(!result.success){
                 console.log("Room join error. Result was not successful.")
@@ -26,8 +25,6 @@ export const createMessageHandler = (
                 });
                 return;
             }
-
-            console.log("Check 2");
 
             const {userId, userName, roomId} = result.data;
 
@@ -51,7 +48,6 @@ export const createMessageHandler = (
                 return;
             }
 
-            console.log("JOIN ROOM add user is being called successfully.")
             userManager.addUser(userId, roomId, userName, ws);
 
             const previousChats = await store.getChats(roomId, 50, 0);
@@ -66,6 +62,7 @@ export const createMessageHandler = (
                         message: chat.message,
                         userName: chat.userName,
                         upvotes: chat.upvotes,
+                        createdAt: chat.createdAt,
                     }
                 });
             }
@@ -78,7 +75,6 @@ export const createMessageHandler = (
         break;
 
         case IncomingSupportedMessage.SendMessage:{
-            console.log("[SERVER] Received SEND_MESSAGE");
             const result = UserMessage.safeParse(IncomingMessage.payload);
 
             if(!result.success){
@@ -118,7 +114,6 @@ export const createMessageHandler = (
                 return;
             }
 
-            console.log("[SERVER] Broadcasting ADD_CHAT to the room.", roomId);
             userManager.broadcastToAll(roomId, {
                 type: OutgoingSupportedMessage.AddChat,
                 payload: {
@@ -127,7 +122,8 @@ export const createMessageHandler = (
                     userId: savedChat.userId,
                     message: savedChat.message,
                     userName: savedChat.userName,
-                    upvotes: savedChat.upvotes
+                    upvotes: savedChat.upvotes,
+                    createdAt: savedChat.createdAt,
                 }
             });
         }

@@ -8,6 +8,8 @@ export const RoomSchema = new mongoose.Schema({
     createdBy: {type: String, required: true},
     joinRequests: {type: [String], default: []},
     createdAt: {type: Date, default: Date.now}
+}, {
+    timestamps: true
 });
 
 export const Room = mongoose.model("Rooms", RoomSchema);

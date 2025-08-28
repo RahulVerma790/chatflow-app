@@ -101,7 +101,6 @@ export class UserManager {
         }
 
         const messageString = JSON.stringify(message);
-        console.log(`[SERVER] Sending to ${room.users.length} clients in room ${roomId}:`, message);
 
         for(const user of room.users){
             try {

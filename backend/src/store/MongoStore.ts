@@ -47,16 +47,23 @@ export class MongoStore extends Store {
 
     async upvote(userId: string, roomId: string, chatId: string) {
         const chat = await ChatMessage.findOne({
-            chatId: chatId,
             roomId: roomId,
+            chatId: chatId
         });
 
-        if(!chat) return null;
+        if(!chat) return;
 
-        if(!chat.upvotes.includes(userId)){
+        const hasUpvoted = chat.upvotes.includes(userId);
+
+        if(hasUpvoted){ 
+            // Remove upvote
+            chat.upvotes = chat.upvotes.filter((id) => id!== userId);
+        } else {
+            // Add upvote
             chat.upvotes.push(userId);
-            await chat.save();
         }
+
+        await chat.save();
 
         return chat as Chat;
     }

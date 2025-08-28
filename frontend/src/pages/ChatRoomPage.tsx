@@ -7,72 +7,109 @@ import { MessageItemComponent } from "../components/MessageItem";
 import { useWebSocket } from "../context/WebSocket";
 import { ButtonComponent } from "../components/ButtonComponent";
 import { ConversationsIcon } from "../icons/ConversationIcon";
+import { groupMessagesByDate } from "../utils/groupMessages";
 
-interface ChatMessage {
+export interface ChatMessage {
     message: string,
     userId: string,
     userName: string,
     roomId: string,
     chatId: string,
-    upvotes: string[]
+    upvotes: string[],
+    createdAt: Date
 }
 
 export const ChatRoomPage = () => {
-    const {roomId} = useParams<{roomId: string}>();
-
-    const {sendMessage, socketReady, messages: incomingMessage} = useWebSocket();
+    const {roomId} = useParams <{roomId: string}> ();
 
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [newMessage, setNewMessage] = useState<string>("");
-    const [showConversation, setShowConversation] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-    const [loadingMore, setLoadingMore] = useState(false);
+    const [showConversation, setShowConversation] = useState<boolean>(false);
+    const [hasMore, setHasMore] = useState<boolean>(true);
+    const [loadingMore, setLoadingMore] = useState<boolean>(false);
 
     const containerRef = useRef<HTMLDivElement>(null);
-    const scrollPositionRef = useRef<number>(0);
     const offsetRef = useRef<number>(0);
 
-    async function fetchMessages(initial=false){
+    messages.sort((a,b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+    const groupedMessages = groupMessagesByDate(messages);
+
+    const currentUserId = localStorage.getItem("userId");
+
+    const {registerHandler, socketReady, sendMessage} = useWebSocket();
+
+    useEffect(() => { // sending JOIN_ROOM message
+        if(!roomId || !socketReady) return;
+
+        const userId = localStorage.getItem("userId");
+        const userName = localStorage.getItem("userName");
+
+        sendMessage({
+            type: "JOIN_ROOM",
+            payload: {
+                roomId: roomId,
+                userId: userId,
+                userName: userName,
+            }
+        });
+
+    }, [socketReady, roomId]);
+
+    async function fetchMessages (initial = false) {
         const token = localStorage.getItem("token");
 
-        if(!token || !roomId){
-            return;
-        }
+        if(!token) return;
 
         setLoadingMore(true);
 
         try {
-            const res = await axios.get(`http://localhost:3000/api/v1/rooms/${roomId}/messages?offset=${offsetRef.current}&limit=50`,{
-                headers: {
-                    authorization: token
-                } 
-            })
+            const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/rooms/${roomId}/messages?offset=${offsetRef.current}&limit=50`,{
+                headers: { authorization: token }
+            });
 
-            const newMessages: ChatMessage[] = res.data.payload.messages;
+            const newMessages = res.data.payload.messages;
 
-            setMessages((prev) => initial ? newMessages : [...newMessages, ...prev]);
+            setMessages(prev => initial ? newMessages : [...newMessages, ...prev]);
+
             offsetRef.current += newMessages.length;
 
             if(newMessages.length < 50){
                 setHasMore(false);
             }
-        }catch(err){
-            console.error("Error in fetching initial messages", err);
+        } catch(err) {
+            console.error("Error in fetching old messages: ",err);
         } finally {
             setLoadingMore(false);
         }
     }
 
     useEffect(() => {
+        fetchMessages(true);
+    }, [roomId]);
+
+    const previousLengthRef = useRef(0);
+
+    useEffect(() => { // handling scrolling
         const container = containerRef.current;
-        if(!container){
-            return;
+        if(!container) return;
+        if(messages.length === 0) return;
+        
+        if(messages.length > previousLengthRef.current){
+            requestAnimationFrame(() => {
+                container.scrollTop = container.scrollHeight;
+            });
         }
+        previousLengthRef.current = messages.length;
+    },[messages]);
+
+    useEffect(() => { // handling lazy loading
+        const container = containerRef.current;
+
+        if(!container) return;
 
         const handleScroll = () => {
-            scrollPositionRef.current = container.scrollTop;
-
-            if(container.scrollTop<100 && hasMore && !loadingMore){
+            if(container.scrollTop < 100 && hasMore && !loadingMore){
                 fetchMessages();
             }
         };
@@ -81,64 +118,40 @@ export const ChatRoomPage = () => {
 
         return () => {
             container.removeEventListener("scroll", handleScroll);
-        }
+        };
 
     },[hasMore, loadingMore]);
 
     useEffect(() => {
-        fetchMessages(true);
-    },[roomId])
+        if(!roomId) return;
 
-    useEffect(() => {
-        const container = containerRef.current;
+        registerHandler("UPVOTE_CHAT", ({chatId, upvotes}) => {
+            setMessages(prev =>
+                prev.map(msg => 
+                    msg.chatId === chatId ? {...msg, upvotes} : msg
+                )
+            )
+        });
 
-        if(!container){
-            return;
-        }
+        registerHandler("ADD_CHAT", (payload) => {
+            const newMessage = {
+                chatId: payload.chatId,
+                userName: payload.userName,
+                userId: payload.userId,
+                roomId: payload.roomId,
+                message: payload.message,
+                upvotes: payload.upvotes,
+                createdAt: payload.createdAt
+            };
 
-        requestAnimationFrame(() => {
-            if(scrollPositionRef.current === 0){
-                container.scrollTop = container.scrollHeight;
-            } else {
-                container.scrollTop = container.scrollHeight - scrollPositionRef.current;
-            }
+            setMessages(prev => [...prev, newMessage])
         })
-    },[messages]);
-
-    useEffect(() => {
-        const container = containerRef.current;
-
-        if(!container || !roomId) return;
-
-        const newChats = incomingMessage
-        .filter((msg) => msg.type === "ADD_CHAT" && msg.payload.roomId === roomId)
-        .map((msg) => ({
-                message: msg.payload.message,
-                userId: msg.payload.userId,
-                userName: msg.payload.userName,
-                roomId: msg.payload.roomId,
-                chatId: msg.payload.chatId,
-                upvotes: msg.payload.upvotes as string[]
-            }));
-
-            if(newChats.length === 0) return;
-            
-            setMessages((prev) => {
-                const unseen = newChats.filter(nc => !prev.some(pm => pm.chatId === nc.chatId));
-                return [...prev, ...unseen];
-            });
-
-            requestAnimationFrame(() => {
-                container.scrollTop = container.scrollHeight;
-            });
-    },[incomingMessage, roomId]);
+    },[roomId, registerHandler]);
 
     function handleSend(){
-        if(!roomId || !newMessage.trim()) return;
+        if(!newMessage.trim()) return;
 
-        const token = localStorage.getItem("token");
-
-        if(!token) return;
+        if(!roomId) return;
 
         const userId = localStorage.getItem("userId");
         const userName = localStorage.getItem("userName");
@@ -154,14 +167,6 @@ export const ChatRoomPage = () => {
         });
 
         setNewMessage("");
-
-        requestAnimationFrame(() => {
-            const container = containerRef.current;
-
-            if(container){
-                container.scrollTop = container.scrollHeight;
-            }
-        });
     }
 
     return <>
@@ -182,16 +187,31 @@ export const ChatRoomPage = () => {
             <main
             ref={containerRef}
              className={`flex-1 overflow-y-auto bg-gray-800 min-h-0 px-4 py-4 space-y-3 mx-8`}>
-                {messages.map(msg => (
-                    <MessageItemComponent
-                        message={msg.message}
-                        userId={msg.userId}
-                        userName={msg.userName}
-                        roomId={msg.roomId}
-                        chatId={msg.chatId}
-                        upvotes={msg.upvotes.length}
-                    />
-                ))}
+                <div>
+                    {groupedMessages.map(({dateHeader, messages}) => (
+                        <div key={dateHeader}>
+                            <div className={`text-center my-2 bg-gray-900 rounded border border-gray-400`}>{dateHeader}</div>
+
+                            <div className="space-y-3">
+                                {messages.map(msg => (
+                                    <div className={`flex ${msg.userId === currentUserId ? "justify-end" : "justify-start"}`}>
+                                        <MessageItemComponent
+                                            key={msg.chatId}
+                                            message={msg.message}
+                                            userId={msg.userId}
+                                            userName={msg.userName}
+                                            roomId={msg.roomId}
+                                            chatId={msg.chatId}
+                                            upvotes={msg.upvotes}
+                                            createdAt = {msg.createdAt}
+                                            currentUserId= {currentUserId}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </main>
 
             <footer className={`flex-none p-1 border-t border-gray-700 flex gap-2`}>

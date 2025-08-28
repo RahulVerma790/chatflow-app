@@ -23,7 +23,7 @@ export const DashboardPage = () => {
     useEffect(() => {
         const token = localStorage.getItem("token");
 
-        axios.get("http://localhost:3000/api/v1/dashboard/recent-rooms", {
+        axios.get(`${import.meta.env.VITE_API_URL}/api/v1/dashboard/recent-rooms`, {
             headers: {
                 authorization: token
             }
@@ -37,7 +37,7 @@ export const DashboardPage = () => {
     useEffect(() => {
         const token = localStorage.getItem("token");
 
-        axios.get("http://localhost:3000/api/v1/dashboard", {
+        axios.get(`${import.meta.env.VITE_API_URL}/api/v1/dashboard`, {
             headers: {
                 authorization: token,
             }
@@ -55,7 +55,7 @@ export const DashboardPage = () => {
     useEffect(() => {
         const token = localStorage.getItem("token");
 
-        axios.get("http://localhost:3000/api/v1/rooms", {
+        axios.get(`${import.meta.env.VITE_API_URL}/api/v1/rooms`, {
             headers: {
                 authorization: token,
             }

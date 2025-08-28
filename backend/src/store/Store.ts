@@ -5,6 +5,8 @@ export interface Chat {
     message: string;
     roomId: string;
     upvotes: string[]; // who has upvoted the chat
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export abstract class Store {

@@ -201,12 +201,10 @@ export const fetchOldChatsController = async (req: Request, res: Response) => {
         }
 
         const messages = await ChatMessage.find({roomId})
-        .sort({createdAt: -1})
+        .sort({createdAt: 1})
         .skip(offset)
         .limit(limit)
         .lean() // return plain JS object
-
-        messages.reverse();
 
         res.status(200).json({
             payload: {messages}
