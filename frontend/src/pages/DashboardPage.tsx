@@ -13,7 +13,7 @@ export interface Room {
 
 export const DashboardPage = () => {
     const [userName, setUserName] = useState<string>("");
-    const [recentRooms, setRecentRooms] = useState<Room[]>([]);
+    const [_recentRooms, setRecentRooms] = useState<Room[]>([]);
     const [showConversation, setShowConversation] = useState(false)
     const [createdRooms, setCreatedRooms] = useState<Room[]>([]);
     const [availableRooms, setAvailableRooms] = useState<Room[]>([]);

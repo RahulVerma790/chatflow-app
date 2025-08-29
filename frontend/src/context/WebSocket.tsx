@@ -16,7 +16,7 @@ export const WebSocketProvider: React.FC<{children: React.ReactNode}> = ({childr
     const messageHandlers = useRef(new Map <string, (payload: any) => void>());
 
     useEffect(() => {
-        const socket = new WebSocket(`ws://${import.meta.env.VITE_API_URL.replace(/^http:\/\//, '')}`, 'echo-protocol');
+        const socket = new WebSocket(`wss://${import.meta.env.VITE_API_URL.replace(/^http:\/\//, '')}`, 'echo-protocol');
         socketRef.current = socket;
 
         socket.onopen = () => {
